@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MedGuard",
+  "type": "object",
+  "properties": {
+    "service": {
+      "type": "object",
+      "description": "Service configuration",
+      "properties": {
+        "image": {
+          "type": "object",
+          "description": "Docker image settings",
+          "properties": {
+            "version": {
+              "type": "string",
+              "description": "Docker image version",
+              "default": "registry.gitlab.com/patmekury/medguard:latest",
+              "listEnum": [
+                "registry.gitlab.com/patmekury/medguard:latest"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "description": "Resource allocation",
+      "properties": {
+        "requests": {
+          "type": "object",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "description": "Requested CPU",
+              "default": "1",
+              "enum": [
+                "0.5",
+                "1",
+                "2"
+              ]
+            },
+            "memory": {
+              "type": "string",
+              "description": "Requested memory",
+              "default": "2Gi",
+              "enum": [
+                "2Gi",
+                "4Gi",
+                "8Gi"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "ingress": {
+      "type": "object",
+      "form": true,
+      "title": "Ingress Details",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "hostname": {
+          "type": "string",
+          "form": true,
+          "title": "Hostname",
+          "x-onyxia": {
+            "overwriteDefaultWith": "{{project.id}}-{{k8s.randomSubdomain}}.{{k8s.domain}}"
+          }
+        }
+      }
+    }
+  }
+}

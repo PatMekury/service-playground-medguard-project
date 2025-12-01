@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "medguard.fullname" . }}
+  labels:
+    {{- include "medguard.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "medguard.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "medguard.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: medguard
+        image: "{{ .Values.service.image.version }}"
+        imagePullPolicy: {{ .Values.service.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.networking.service.port }}
+          protocol: TCP
+        env:
+        - name: STREAMLIT_SERVER_PORT
+          value: "{{ .Values.networking.service.port }}"
+        - name: STREAMLIT_SERVER_ADDRESS
+          value: "0.0.0.0"
+        - name: STREAMLIT_SERVER_HEADLESS
+          value: "true"
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        livenessProbe:
+          httpGet:
+            path: /_stcore/health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /_stcore/health
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5

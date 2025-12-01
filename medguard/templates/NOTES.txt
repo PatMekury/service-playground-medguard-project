@@ -1,0 +1,14 @@
+Your MedGuard Mediterranean Fisheries Management System is being deployed.
+
+It will be available at this link: http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .Values.ingress.hostname }}
+
+MedGuard provides:
+- Real-time ecosystem monitoring
+- Sustainability risk assessment
+- Habitat quality mapping
+- Larval connectivity analysis
+- Marine Protected Area optimization
+
+Please allow 2-3 minutes for the service to start.
+
+For support: patrickobumselu@gmail.com

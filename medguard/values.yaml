@@ -1,0 +1,43 @@
+# Default values for medguard
+replicaCount: 1
+
+service:
+  image:
+    # Docker image from gitlab.com registry
+    version: "registry.gitlab.com/patmekury/medguard:latest"
+    pullPolicy: Always
+
+resources:
+  limits:
+    cpu: "2"
+    memory: "4Gi"
+  requests:
+    cpu: "1"
+    memory: "2Gi"
+
+networking:
+  service:
+    port: 8501  # Streamlit default port
+  user:
+    enabled: false
+
+security:
+  allowlist:
+    enabled: false
+
+
+ingress:
+  enabled: true
+  tls: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+
+# S3 storage configuration (optional)
+s3:
+  enabled: false
+
+# Environment variables
+environment:
+  STREAMLIT_SERVER_PORT: "8501"
+  STREAMLIT_SERVER_ADDRESS: "0.0.0.0"
+  STREAMLIT_SERVER_HEADLESS: "true"
