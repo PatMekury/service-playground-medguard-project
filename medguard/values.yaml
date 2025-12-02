@@ -1,43 +1,69 @@
-# Default values for medguard
-replicaCount: 1
+# Default values for medguard.
+
+global:
+  suspend: false
 
 service:
   image:
-    # Docker image from gitlab.com registry
     version: "registry.gitlab.com/patmekury/medguard:latest"
-    pullPolicy: Always
-
-resources:
-  limits:
-    cpu: "2"
-    memory: "4Gi"
-  requests:
-    cpu: "1"
-    memory: "2Gi"
-
-networking:
-  service:
-    port: 8501  # Streamlit default port
-  user:
-    enabled: false
+    pullPolicy: IfNotPresent
+    custom:
+      enabled: false
 
 security:
   allowlist:
     enabled: false
 
+environment:
+  user: onyxia
+  group: users
+
+nameOverride: ""
+fullnameOverride: ""
+
+podSecurityContext:
+  fsGroup: 100
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+networking:
+  type: ClusterIP
+  clusterIP: None
+  service:
+    port: 8501
+  user:
+    enabled: false
 
 ingress:
-  enabled: true
-  tls: true
-  annotations:
-    kubernetes.io/ingress.class: nginx
-
-# S3 storage configuration (optional)
-s3:
   enabled: false
+  tls: true
+  annotations: []
+    # kubernetes.io/tls-acme: "true"
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
 
-# Environment variables
-environment:
-  STREAMLIT_SERVER_PORT: "8501"
-  STREAMLIT_SERVER_ADDRESS: "0.0.0.0"
-  STREAMLIT_SERVER_HEADLESS: "true"
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+startupProbe:
+  failureThreshold: 60
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  successThreshold: 1
+  timeoutSeconds: 5

@@ -1,45 +1,42 @@
+{{- $fullName := include "library-chart.fullname" . -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "medguard.fullname" . }}
+  name: {{ include "library-chart.fullname" . }}
   labels:
-    {{- include "medguard.labels" . | nindent 4 }}
+    {{- include "library-chart.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  {{- if .Values.global.suspend }}
+  replicas: 0
+  {{- else}}
+  replicas: 1
+  {{- end}}
   selector:
     matchLabels:
-      {{- include "medguard.selectorLabels" . | nindent 6 }}
+      {{- include "library-chart.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "medguard.selectorLabels" . | nindent 8 }}
+        {{- include "library-chart.selectorLabels" . | nindent 8 }}
     spec:
+      subdomain: {{ include "library-chart.fullname" . }}
+      hostname: medguard
       containers:
-      - name: medguard
-        image: "{{ .Values.service.image.version }}"
-        imagePullPolicy: {{ .Values.service.image.pullPolicy }}
-        ports:
-        - name: http
-          containerPort: {{ .Values.networking.service.port }}
-          protocol: TCP
-        env:
-        - name: STREAMLIT_SERVER_PORT
-          value: "{{ .Values.networking.service.port }}"
-        - name: STREAMLIT_SERVER_ADDRESS
-          value: "0.0.0.0"
-        - name: STREAMLIT_SERVER_HEADLESS
-          value: "true"
-        resources:
-          {{- toYaml .Values.resources | nindent 10 }}
-        livenessProbe:
-          httpGet:
-            path: /_stcore/health
-            port: http
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /_stcore/health
-            port: http
-          initialDelaySeconds: 10
-          periodSeconds: 5
+        - name: {{ .Chart.Name }}
+          image: {{ .Values.service.image.version }}
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            httpGet:
+              path: /_stcore/health
+              port: {{ .Values.networking.service.port }}
+          readinessProbe:
+            httpGet:
+              path: /_stcore/health
+              port: {{ .Values.networking.service.port }}
+          startupProbe:
+            httpGet:
+              path: /_stcore/health
+              port: {{ .Values.networking.service.port }}
+            {{- toYaml .Values.startupProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
